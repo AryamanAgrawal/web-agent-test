@@ -56,6 +56,8 @@ Cons
 
 browser-use (Buy)
 
+
+
 Pros
 - Dedicated support and team building to enhance abstraction
 - Multi-model support
@@ -77,5 +79,11 @@ Cons
 - Adds an additional sub-processor to user data
 - Don't mention security
 
+
+Decisions:
+- Use browser-use
+- Not use browser-use custom functions for this implements
+    - This leaves room for us to customize our agent and not be bound to the browser-use schema
+    - We want the agent to be our agent not a browser-use agent
 
 

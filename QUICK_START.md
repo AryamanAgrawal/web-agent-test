@@ -36,18 +36,20 @@ OPENAI_API_KEY=your_actual_openai_api_key_here
 source venv/bin/activate
 ```
 
-### 4. Run the test
+### 4. Run the agent
 
 ```bash
-python browser-use-test.py
+python main.py
 ```
 
-## What the test does
+## What the agent does
 
-The test script demonstrates basic browser-use functionality:
-- Navigates to Google
-- Searches for "what is browser automation"
-- Returns the top 3 search results
+The agent provides an interactive interface for web automation tasks:
+- Takes natural language input from users
+- Uses OpenAI function calling to determine when to execute web tasks
+- Breaks down complex tasks into manageable steps
+- Executes tasks using browser-use for actual web automation
+- Supports tasks like searching, shopping, booking, form filling, etc.
 
 ## Dependencies
 
