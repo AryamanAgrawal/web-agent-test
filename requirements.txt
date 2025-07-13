@@ -1,0 +1,6 @@
+browser-use
+python-dotenv
+openai
+playwright
+asyncio-mqtt
+pydantic 
