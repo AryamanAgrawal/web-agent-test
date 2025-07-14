@@ -46,6 +46,8 @@ Tested Commands:
 
 # Interpretation:
 
+- Aiming for a demo-able POC that can serve as the building block for a productionizable web agent to be deployed at scalein out application
+
 - Action-first web agent rather than an information-retrieval-first agent
 
 - Should be able to navigate relatively complex tasks:
@@ -64,7 +66,6 @@ Tested Commands:
     - Each tool should append state to the conversation history
     - Each task should have a finish parameter
     - Each task execution should end with a successful reply to the user
-
 
 
 # Decisions:
