@@ -20,8 +20,9 @@ async def run_agent_loop():
         
         main_profile = BrowserProfile(
             stealth=True,
-            keep_alive=True,            
-            user_data_dir=None,                       
+            keep_alive=True,
+            user_data_dir=None,
+            headless=False  # Set to True if you want headless browsing
         )
 
         browser_session = BrowserSession(browser_profile=main_profile)

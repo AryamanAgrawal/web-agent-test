@@ -1,31 +1,36 @@
-# Browser-Use Testing Setup
+# Browser-Use Web Agent
 
-This directory contains a test setup for the `browser-use` package.
+This directory contains a comprehensive web automation agent built with the `browser-use` package.
 
 ## Quick Start
 
 ### 1. Set up the environment
 
-Run the setup script to create a virtual environment and install dependencies:
+Run the setup script to create a virtual environment and install all dependencies:
 
 ```bash
 ./setup.sh
 ```
 
-This will:
-- Create a Python virtual environment in `venv/`
-- Install all required packages from `requirements.txt`
-- Install Playwright browsers
+**Requirements**: Python 3.8 or higher
+
+The setup script will:
+- ✅ Check your Python version (requires Python 3.8+)
+- ✅ Create a Python virtual environment in `venv/`
+- ✅ Install all required packages from `requirements.txt`
+- ✅ Install Playwright browsers
+- ✅ Install Patchright browsers (for browser-use compatibility)
+- ✅ Create a `.env` file template with your OpenAI API key placeholder
 
 ### 2. Configure environment variables
 
-Copy the template file and add your OpenAI API key:
+The setup script automatically creates a `.env` file template. Edit it and add your OpenAI API key:
 
 ```bash
-cp env-template.txt .env
+nano .env  # or use your preferred editor
 ```
 
-Then edit `.env` and add your OpenAI API key:
+Then add your OpenAI API key:
 ```
 OPENAI_API_KEY=your_actual_openai_api_key_here
 ```
@@ -159,13 +164,22 @@ Agent: [Retries task with credentials]
 
 ## Dependencies
 
+The setup script installs all required dependencies:
+
 - `browser-use` - Main automation package
-- `python-dotenv` - Environment variable management
+- `python-dotenv` - Environment variable management  
 - `openai` - OpenAI API integration
 - `playwright` - Browser automation backend
 - `pydantic` - Data validation
+- `asyncio-mqtt` - Async MQTT support
 
 ## Troubleshooting
+
+### If setup fails with Python version error:
+Make sure you have Python 3.8 or higher installed:
+```bash
+python3 --version
+```
 
 ### If you get import errors:
 Make sure you've activated the virtual environment:
@@ -179,8 +193,31 @@ Make sure your `.env` file contains a valid OpenAI API key:
 OPENAI_API_KEY=sk-your-key-here
 ```
 
-### If Playwright browsers aren't installed:
-Run the playwright install command manually:
+### If Playwright browsers aren't working:
+The setup script installs both Playwright and Patchright browsers for compatibility. If you still have issues, try:
 ```bash
+source venv/bin/activate
 playwright install
-``` 
+python -m patchright install
+```
+
+### If you get browser compatibility errors:
+The setup script includes `patchright install` which resolves most browser compatibility issues with browser-use. This is automatically handled during setup.
+
+### If the agent gets stuck in a loop:
+- Try restarting the agent with `Ctrl+C` and `python main.py`
+- Make sure you're providing all requested information after task analysis
+- Check that your `.env` file has a valid OpenAI API key
+
+## What's New
+
+Recent improvements include:
+
+✅ **Comprehensive Setup**: Automated setup with Python version checking  
+✅ **Browser Compatibility**: Automatic patchright installation  
+✅ **Environment Configuration**: Auto-generated .env template  
+✅ **Better Error Handling**: Intelligent error recovery with specific guidance  
+✅ **Persistent Sessions**: Browser context maintained across all operations  
+✅ **Task Analysis**: Smart pre-execution analysis of complex tasks  
+
+The agent is now ready to handle complex web automation tasks with minimal setup required! 

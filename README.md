@@ -3,6 +3,9 @@
 For Project Structure: `./PROJECT_STRUCTURE.md`
 For Quick Start Instructions: `QUICK_START.md`
 
+# Input Instructions
+Provide all input in one single string.
+
 # Test Credentials for Tasks
 
 Fake Credit Card:
@@ -16,8 +19,21 @@ Login:
 - Google
 - Amazon
 
-email: `aryaman.agrawal28@gmail.com`
-pass: `@ryamanagrawal28`
+email: `aryaman.agrawal28@gmail.com` pass: `@ryamanagrawal28`
+
+Tested Commands:
+
+- Go to Google Flights and Book me a flight to Amsterdam
+- Go to Amazon and buy me the book: Letters to a Young Poet
+
+# Open Questions/Follow-up Items:
+- Would like to add sensitive data handling for Credentials (https://docs.browser-use.com/customize/sensitive-data)
+    - We'd probably like to fetch these from a file rather than have the user input these
+- Configure Browser Context
+- Human in the loop element
+    - Currently the application is architechted as a human-in-the-loop this human input can be replaced by interactions with another agent that is checking this agent's work
+    - The human in the loop element can be architected using API endpoints supplied in functions that can prompt the user to enter further details if needed
+- Add Structured Output to the browser-use output so that the next agent call can study it and verify the outcome of the call
 
 # Goal
 - Build a general-purpose browsing agent that can navigate websites and perform user requested tasks autonomously. 
@@ -48,6 +64,19 @@ pass: `@ryamanagrawal28`
     - Each tool should append state to the conversation history
     - Each task should have a finish parameter
     - Each task execution should end with a successful reply to the user
+
+
+
+# Decisions:
+- Use browser-use
+- Not use browser-use custom functions for this implements
+    - This leaves room for us to customize our agent and not be bound to the browser-use schema
+    - We want the agent to be our agent not a browser-use agent
+- Ask the user for validations or places where the browser agent gets stuck
+    - For the scope of this project this is probably the best UX
+    - A fully automated agent isn't that hard to achieve after this
+        - It will probably need new tools to query data needed to run its tasks
+
 
 # Questions to answer:
     - What Web API to use?
@@ -98,22 +127,3 @@ Cons
 - Adds an additional sub-processor to user data
 - Don't mention security
 ```
-
-# Decisions:
-- Use browser-use
-- Not use browser-use custom functions for this implements
-    - This leaves room for us to customize our agent and not be bound to the browser-use schema
-    - We want the agent to be our agent not a browser-use agent
-- Ask the user for validations or places where the browser agent gets stuck
-    - For the scope of this project this is probably the best UX
-    - A fully automated agent isn't that hard to achieve after this
-        - It will probably need new tools to query data around it
-
-
-# Open Questions/Follow-up Items:
-- Would like to add sensitive data handling for Credentials (https://docs.browser-use.com/customize/sensitive-data)
-    - We'd probably like to fetch these from a file rather than have the user input these
-- Configure Browser Context
-- Human in the loop element
-    - Currently the application is architechted as a human-in-the-loop this human input can be replaced by interactions with another agent that is checking this agent's work
-    - The human in the loop element can be architected using API endpoints supplied in functions that can prompt the user to enter further details if needed
