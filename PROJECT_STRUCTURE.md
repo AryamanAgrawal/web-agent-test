@@ -25,8 +25,9 @@ web-agent-test/
 ### 1. `main.py`
 - **Purpose**: Entry point for the application
 - **Key Functions**:
-  - `run_agent_loop()`: Main interactive loop
+  - `run_agent_loop()`: Main interactive loop with browser session management
   - `main()`: Application entry point
+- **Browser Session**: Creates and manages persistent browser session
 - **Usage**: `python main.py`
 
 ### 2. `web_agent.py`
@@ -43,6 +44,7 @@ web-agent-test/
   - `WebTools` class: Tool management
   - `analyze_task_requirements()`: Analyzes tasks and identifies required information
   - `execute_web_task()`: Browser automation using browser-use
+  - `retry_web_task()`: Retries failed tasks with additional information
   - `get_available_tools()`: OpenAI function definitions
   - `execute_tool()`: Tool dispatcher
 - **Dependencies**: `browser_use`, `config`
@@ -63,18 +65,19 @@ web-agent-test/
 ## Data Flow
 
 ```
-User Input → main.py → WebAgent → OpenAI API → analyze_task_requirements → collect_info → execute_web_task → browser-use → Web Browser
+BrowserSession → main.py → WebAgent → WebTools → OpenAI API → analyze_task_requirements → collect_info → execute_web_task → browser-use → Web Browser
 ```
 
-1. **User Input**: User types command in terminal
-2. **main.py**: Captures input and passes to WebAgent
-3. **WebAgent**: Processes input using OpenAI function calling
-4. **OpenAI API**: Determines which tool to use and with what parameters
-5. **analyze_task_requirements**: Analyzes task and identifies required information
-6. **Information Collection**: Agent requests missing information from user
-7. **execute_web_task**: Executes web task with complete information
-8. **browser-use**: Performs actual browser automation
-9. **Web Browser**: Executes the web task
+1. **BrowserSession**: Created in main.py with persistent configuration
+2. **main.py**: Captures input and passes to WebAgent with browser session
+3. **WebAgent**: Processes input using OpenAI function calling (maintains browser session)
+4. **WebTools**: Receives browser session for consistent web automation
+5. **OpenAI API**: Determines which tool to use and with what parameters
+6. **analyze_task_requirements**: Analyzes task and identifies required information
+7. **Information Collection**: Agent requests missing information from user
+8. **execute_web_task**: Executes web task with complete information using shared browser session
+9. **browser-use**: Performs actual browser automation with persistent context
+10. **Web Browser**: Executes the web task maintaining previous session state
 
 ### Enhanced Workflow
 
@@ -90,6 +93,25 @@ The agent now follows a two-phase approach:
 - Executes web task with complete information
 - Follows predefined steps for task completion
 - Provides feedback on progress and results
+
+### Browser Session Benefits
+
+The persistent browser session provides several advantages:
+
+**Session Continuity**
+- Login states persist across multiple tasks
+- Shopping carts and form data are maintained
+- Previous navigation context is preserved
+
+**Performance Improvements**
+- Faster subsequent page loads due to cached resources
+- Reduced authentication overhead
+- Efficient cookie and session management
+
+**User Experience**
+- Seamless multi-step workflows (e.g., login → browse → purchase)
+- No need to re-authenticate for each task
+- Maintains user preferences and settings
 
 ## Key Design Principles
 

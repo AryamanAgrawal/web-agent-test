@@ -5,22 +5,24 @@ Handles conversation flow, OpenAI integration, and orchestrates tool execution.
 """
 
 import json
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 import openai
 from tools import WebTools
 from config import OPENAI_API_KEY, OPENAI_MODEL, ERROR_NO_API_KEY, ERROR_PROCESSING
+from browser_use import BrowserSession
 
 
 class WebAgent:
     """Main agent class that orchestrates web automation tasks"""
     
-    def __init__(self):
+    def __init__(self, browser_session: Optional[BrowserSession] = None):
         if not OPENAI_API_KEY:
             raise ValueError(ERROR_NO_API_KEY)
             
         self.conversation_history: List[Dict[str, Any]] = []
         self.openai_client = openai.OpenAI(api_key=OPENAI_API_KEY)
-        self.tools = WebTools()
+        self.tools = WebTools(browser_session=browser_session)
+        self.browser_session = browser_session
         
     def get_system_message(self) -> Dict[str, str]:
         """Get the system message for the agent"""
@@ -35,20 +37,26 @@ class WebAgent:
             - Navigating complex websites
             
             IMPORTANT WORKFLOW:
-            1. When a user asks for a web-based task, FIRST use analyze_task_requirements to understand what steps and information are needed
-            2. Present the analysis to the user and ask for any missing information
-            3. ONLY after you have all necessary information, use execute_web_task to perform the actual task
+            1. For complex tasks (booking, shopping, etc.), FIRST use analyze_task_requirements to understand what steps and information are needed
+            2. After analysis, STOP and present the results to the user. Ask them to provide any missing information.
+            3. ONLY use execute_web_task when the user has provided all necessary details in a follow-up message
+            4. If execute_web_task fails or returns an error, analyze the error and ask the user for additional information needed to resolve the issue
             
-            For example:
-            - User: "Book a flight to Paris"
-            - You: Use analyze_task_requirements → Show required info → Ask user for details
-            - User: Provides departure city, dates, preferences, etc.
-            - You: Use execute_web_task with complete information
+            CRITICAL: After calling analyze_task_requirements, DO NOT call any other functions. Wait for the user's response with the required information.
             
-            For simple tasks like basic searches, you may skip the analysis and go directly to execution.
+            ERROR HANDLING:
+            - If a task fails with authentication errors, ask for login credentials
+            - If a task fails with payment errors, ask for payment information
+            - If a task fails with access errors, ask for proper permissions
+            - If a task fails with connection errors, suggest trying again or checking connectivity
+            - If a task fails for other reasons, ask the user to provide additional details or clarify requirements
+            
+            When you receive error responses from execute_web_task (messages starting with ❌), carefully read the error details and ask the user for the specific information needed to resolve the issue. Be specific about what information is missing.
+            
+            For simple tasks like basic searches, you may go directly to execute_web_task.
             For general questions or status checks, respond normally or use get_current_status.
             
-            Always be proactive in gathering information to ensure successful task completion. If the user provides incomplete information, ask for clarification rather than proceeding with missing details."""
+            Always ask for clarification if information is incomplete. Never proceed with missing details."""
         }
     
     async def process_user_input(self, user_input: str) -> str:
@@ -102,7 +110,9 @@ class WebAgent:
                     "content": result
                 })
                 
-                # Get final response from the model
+
+                
+                # For other functions, get final response from the model
                 final_response = self.openai_client.chat.completions.create(
                     model=OPENAI_MODEL,
                     messages=[self.get_system_message()] + self.conversation_history  # type: ignore

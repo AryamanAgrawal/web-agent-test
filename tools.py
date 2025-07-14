@@ -4,8 +4,8 @@ Tools module for Browser-Use Agent
 Contains tool definitions and execution functions for OpenAI function calling.
 """
 
-from typing import Dict, List, Any
-from browser_use import Agent
+from typing import Dict, List, Any, Optional
+from browser_use import Agent, BrowserSession
 from browser_use.llm.openai.chat import ChatOpenAI
 from config import BROWSER_MODEL
 
@@ -13,8 +13,9 @@ from config import BROWSER_MODEL
 class WebTools:
     """Tools for web automation and agent functionality"""
     
-    def __init__(self):
+    def __init__(self, browser_session: Optional[BrowserSession] = None):
         self.browser_llm = ChatOpenAI(model=BROWSER_MODEL)
+        self.browser_session = browser_session
     
     async def analyze_task_requirements(self, task_description: str) -> str:
         """
@@ -211,13 +212,98 @@ Task Analysis Complete:
             detailed_task = f"{task_description}\n\nSteps to follow:\n" + "\n".join(f"- {step}" for step in task_steps)
             
             # Create and run the browser-use agent
-            agent = Agent(task=detailed_task, llm=self.browser_llm)
+            agent = Agent(task=detailed_task, llm=self.browser_llm, use_vision=True, browser_session=self.browser_session)
             result = await agent.run()
             
-            return f"Web task completed successfully. Result: {result}"
+            # Convert result to string for processing
+            result_str = str(result) if result else ""
+            
+            # Check if the result indicates failure or incomplete task
+            if result_str and self._is_task_unsuccessful(result_str):
+                return f"❌ TASK_INCOMPLETE: {result_str}\n\nThe task could not be completed successfully. This might be due to:\n• Missing or incorrect information\n• Authentication issues\n• Website unavailable or changed\n• Payment or account setup required\n• Insufficient permissions\n\nPlease provide additional information or clarify the requirements to help complete this task."
+            
+            return f"✅ Web task completed successfully. Result: {result_str}"
             
         except Exception as e:
-            return f"Error executing web task: {str(e)}"
+            error_msg = str(e)
+            # Provide more specific error guidance based on error type
+            if "login" in error_msg.lower() or "authentication" in error_msg.lower():
+                return f"❌ AUTHENTICATION_ERROR: {error_msg}\n\nIt appears this task requires login credentials or authentication. Please provide:\n• Account username/email\n• Password or authentication method\n• Two-factor authentication codes if needed"
+            elif "payment" in error_msg.lower() or "billing" in error_msg.lower():
+                return f"❌ PAYMENT_ERROR: {error_msg}\n\nThis task requires payment information. Please provide:\n• Payment method (credit card, PayPal, etc.)\n• Billing address\n• Payment authorization"
+            elif "permission" in error_msg.lower() or "access" in error_msg.lower():
+                return f"❌ ACCESS_ERROR: {error_msg}\n\nAccess permissions are required. Please provide:\n• Proper account permissions\n• Admin access credentials\n• Required authorization"
+            elif "timeout" in error_msg.lower() or "connection" in error_msg.lower():
+                return f"❌ CONNECTION_ERROR: {error_msg}\n\nThere was a connection issue. Please:\n• Check your internet connection\n• Try again in a few moments\n• Verify the website is accessible"
+            else:
+                return f"❌ EXECUTION_ERROR: {error_msg}\n\nThe task encountered an error. Please:\n• Verify all provided information is correct\n• Check if additional details are needed\n• Try rephrasing the task requirements"
+    
+    def _is_task_unsuccessful(self, result: str) -> bool:
+        """
+        Check if the task result indicates failure or incomplete execution
+        
+        Args:
+            result: The result string from browser-use execution
+            
+        Returns:
+            True if the task appears to be unsuccessful
+        """
+        failure_indicators = [
+            "failed", "error", "unable", "cannot", "could not", "unsuccessful",
+            "not found", "access denied", "permission denied", "login required",
+            "authentication required", "timeout", "connection failed",
+            "page not found", "server error", "unavailable"
+        ]
+        
+        result_lower = result.lower()
+        return any(indicator in result_lower for indicator in failure_indicators)
+    
+    async def retry_web_task(self, original_task_description: str, additional_information: str, task_steps: List[str]) -> str:
+        """
+        Retry a previously failed web task with additional information
+        
+        Args:
+            original_task_description: The original task that failed
+            additional_information: Additional info provided by user to resolve the failure
+            task_steps: Updated steps incorporating the additional information
+            
+        Returns:
+            Result of the retry attempt
+        """
+        try:
+            print(f"🔄 Retrying web task: {original_task_description}")
+            print(f"➕ Additional information: {additional_information}")
+            print(f"📋 Updated steps: {', '.join(task_steps)}")
+            
+            # Combine original task, additional info, and steps
+            enhanced_task = f"""
+ORIGINAL TASK: {original_task_description}
+
+ADDITIONAL INFORMATION PROVIDED:
+{additional_information}
+
+UPDATED STEPS TO FOLLOW:
+{chr(10).join(f"- {step}" for step in task_steps)}
+
+Please use the additional information to successfully complete the original task.
+"""
+            
+            # Create and run the browser-use agent with enhanced context
+            agent = Agent(task=enhanced_task, llm=self.browser_llm, use_vision=True, browser_session=self.browser_session)
+            result = await agent.run()
+            
+            # Convert result to string for processing
+            result_str = str(result) if result else ""
+            
+            # Check if the retry was successful
+            if result_str and self._is_task_unsuccessful(result_str):
+                return f"❌ RETRY_FAILED: {result_str}\n\nThe task retry was unsuccessful. The additional information provided may not have resolved the issue, or there may be other problems:\n• The website may have changed or be unavailable\n• Additional authentication or permissions may be required\n• The provided information may be incorrect or incomplete\n• Technical issues with the website\n\nPlease try providing different information or approach the task differently."
+            
+            return f"✅ Task retry successful! Result: {result_str}"
+            
+        except Exception as e:
+            error_msg = str(e)
+            return f"❌ RETRY_ERROR: {error_msg}\n\nThe retry attempt encountered an error. This could be due to:\n• The same issues that caused the original failure\n• New technical problems\n• Insufficient additional information\n\nPlease provide more details or try a different approach."
     
     def get_current_status(self) -> str:
         """Get current agent status"""
@@ -247,7 +333,7 @@ Task Analysis Complete:
                 "type": "function",
                 "function": {
                     "name": "execute_web_task",
-                    "description": "Execute a web-based task using browser automation. Use this ONLY AFTER analyzing task requirements and gathering necessary information from the user.",
+                    "description": "Execute a web-based task using browser automation. Use this ONLY AFTER analyzing task requirements and gathering necessary information from the user. If this function returns an error, ask the user for additional information to resolve the issue.",
                     "parameters": {
                         "type": "object",
                         "properties": {
@@ -264,6 +350,34 @@ Task Analysis Complete:
                             }
                         },
                         "required": ["task_description", "task_steps"]
+                    }
+                }
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "retry_web_task",
+                    "description": "Retry a previously failed web task with additional information provided by the user. Use this when execute_web_task has failed and the user has provided additional details to resolve the issue.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "original_task_description": {
+                                "type": "string",
+                                "description": "The original task description that failed"
+                            },
+                            "additional_information": {
+                                "type": "string",
+                                "description": "Additional information provided by the user to resolve the failure (e.g., login credentials, payment info, corrected details)"
+                            },
+                            "task_steps": {
+                                "type": "array",
+                                "description": "Updated list of steps that incorporate the additional information",
+                                "items": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "required": ["original_task_description", "additional_information", "task_steps"]
                     }
                 }
             },
@@ -298,6 +412,12 @@ Task Analysis Complete:
         elif tool_name == "execute_web_task":
             return await self.execute_web_task(
                 tool_args["task_description"],
+                tool_args["task_steps"]
+            )
+        elif tool_name == "retry_web_task":
+            return await self.retry_web_task(
+                tool_args["original_task_description"],
+                tool_args["additional_information"],
                 tool_args["task_steps"]
             )
         elif tool_name == "get_current_status":

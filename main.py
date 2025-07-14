@@ -7,6 +7,9 @@ Provides the interactive loop for user interaction.
 import asyncio
 from web_agent import WebAgent
 from config import WELCOME_MESSAGE, GOODBYE_MESSAGE
+from browser_use import BrowserSession
+from browser_use.browser import BrowserProfile
+
 
 
 async def run_agent_loop():
@@ -14,7 +17,16 @@ async def run_agent_loop():
     print(WELCOME_MESSAGE)
     
     try:
-        agent = WebAgent()
+        
+        main_profile = BrowserProfile(
+            stealth=True,
+            keep_alive=True,            
+            user_data_dir=None,                       
+        )
+
+        browser_session = BrowserSession(browser_profile=main_profile)
+        
+        agent = WebAgent(browser_session=browser_session)
     except ValueError as e:
         print(str(e))
         return
@@ -41,6 +53,14 @@ async def run_agent_loop():
             break
         except Exception as e:
             print(f"❌ Error: {str(e)}\n")
+    
+    # Cleanup browser session
+    if 'browser_session' in locals():
+        try:
+            await browser_session.close()
+            print("🔄 Browser session closed successfully.")
+        except Exception as e:
+            print(f"⚠️ Warning: Could not close browser session: {str(e)}")
 
 
 def main():

@@ -1,5 +1,22 @@
 # web-agent-test
-test repository for a web ai agent
+
+For Project Structure: `./PROJECT_STRUCTURE.md`
+For Quick Start Instructions: `QUICK_START.md`
+
+# Test Credentials for Tasks
+
+Fake Credit Card:
+5555 5555 5555 4444; Exp: 06/27; CVV: 567
+
+Fake Address:
+Jamie Lee, 918 Broderick Street Apt 3B, San Francisco, CA 94115, USA, +1 (415) 555-0198
+
+Login:
+- Gmail
+- Google
+- Amazon
+email: aryaman.agrawal28@gmail.com
+pass: @ryamanagrawal28
 
 # Goal
 - Build a general-purpose browsing agent that can navigate websites and perform user requested tasks autonomously. 
@@ -87,3 +104,7 @@ Decisions:
     - We want the agent to be our agent not a browser-use agent
 
 
+Open Questions:
+- Would like to add sensitive data handling for Credentials (https://docs.browser-use.com/customize/sensitive-data)
+    - We'd probably like to fetch these from a file rather than have the user input these
+- Configure Browser Context
