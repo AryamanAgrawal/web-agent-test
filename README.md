@@ -19,7 +19,7 @@ Login:
 - Google
 - Amazon
 
-email: `aryaman.agrawal28@gmail.com` pass: `@ryamanagrawal28`
+email: `aryaman.agrawal28@gmail.com` pass: @ryamanagrawal28
 
 Tested Commands:
 
