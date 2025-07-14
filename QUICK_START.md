@@ -44,12 +44,56 @@ python main.py
 
 ## What the agent does
 
-The agent provides an interactive interface for web automation tasks:
+The agent provides an intelligent interface for web automation tasks:
 - Takes natural language input from users
+- **Analyzes tasks** to identify required steps and information
+- **Proactively requests** missing information before execution
 - Uses OpenAI function calling to determine when to execute web tasks
 - Breaks down complex tasks into manageable steps
 - Executes tasks using browser-use for actual web automation
 - Supports tasks like searching, shopping, booking, form filling, etc.
+
+### Enhanced Workflow
+
+The agent now follows a smart two-phase approach:
+
+1. **Task Analysis Phase**: When you request a complex task (like booking a flight or buying something), the agent will:
+   - Analyze what information is needed
+   - List the steps required
+   - Ask you for any missing details upfront
+
+2. **Task Execution Phase**: Only after gathering all necessary information, the agent will:
+   - Execute the web task with complete details
+   - Provide progress updates
+   - Handle any issues that arise
+
+### Example Interaction
+
+```
+You: Book a flight to Paris
+Agent: 🔍 Analyzing task requirements...
+
+Task Analysis Complete:
+📋 REQUIRED STEPS:
+   1. Navigate to airline website or booking platform
+   2. Enter departure and destination locations
+   3. Select travel dates
+   ...
+
+❓ INFORMATION NEEDED FROM USER:
+   • Departure city/airport
+   • Destination city/airport
+   • Departure date
+   • Return date (if round trip)
+   • Number of passengers
+   • Budget range
+   ...
+
+Could you please provide these details so I can book your flight successfully?
+
+You: [Provide travel details]
+Agent: Perfect! Now executing your flight booking...
+```
 
 ## Dependencies
 

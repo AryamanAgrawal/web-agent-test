@@ -9,14 +9,14 @@ load_dotenv()
 
 # OpenAI Configuration
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-OPENAI_MODEL = "gpt-4o-mini"
+OPENAI_MODEL = "gpt-4.1"
 
 # Agent Configuration
 AGENT_NAME = "Web Agent"
 AGENT_DESCRIPTION = "Browser automation assistant"
 
 # Browser Configuration
-BROWSER_MODEL = "gpt-4o-mini"
+BROWSER_MODEL = "gpt-4.1"
 
 # UI Messages
 WELCOME_MESSAGE = """🤖 Web Agent Started!

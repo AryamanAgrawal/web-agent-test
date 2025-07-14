@@ -34,17 +34,21 @@ class WebAgent:
             - Extracting data from websites
             - Navigating complex websites
             
-            When a user asks for a web-based task, use the execute_web_task function with:
-            1. A clear, detailed description of the task
-            2. A list of specific steps to accomplish the task
+            IMPORTANT WORKFLOW:
+            1. When a user asks for a web-based task, FIRST use analyze_task_requirements to understand what steps and information are needed
+            2. Present the analysis to the user and ask for any missing information
+            3. ONLY after you have all necessary information, use execute_web_task to perform the actual task
             
-            Break down complex tasks into manageable steps. For example:
-            - "Buy a basketball on Amazon" → ["Navigate to Amazon", "Search for basketball", "Select a product", "Add to cart", "Proceed to checkout"]
-            - "Book a flight" → ["Go to airline website", "Enter departure/arrival cities", "Select dates", "Choose flight", "Enter passenger details", "Complete booking"]
+            For example:
+            - User: "Book a flight to Paris"
+            - You: Use analyze_task_requirements → Show required info → Ask user for details
+            - User: Provides departure city, dates, preferences, etc.
+            - You: Use execute_web_task with complete information
             
+            For simple tasks like basic searches, you may skip the analysis and go directly to execution.
             For general questions or status checks, respond normally or use get_current_status.
             
-            Be helpful, clear, and ask for clarification if the task is ambiguous."""
+            Always be proactive in gathering information to ensure successful task completion. If the user provides incomplete information, ask for clarification rather than proceeding with missing details."""
         }
     
     async def process_user_input(self, user_input: str) -> str:

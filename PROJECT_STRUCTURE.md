@@ -41,6 +41,7 @@ web-agent-test/
 - **Purpose**: Tool definitions and execution logic
 - **Key Components**:
   - `WebTools` class: Tool management
+  - `analyze_task_requirements()`: Analyzes tasks and identifies required information
   - `execute_web_task()`: Browser automation using browser-use
   - `get_available_tools()`: OpenAI function definitions
   - `execute_tool()`: Tool dispatcher
@@ -62,17 +63,33 @@ web-agent-test/
 ## Data Flow
 
 ```
-User Input → main.py → WebAgent → OpenAI API → Tool Selection → WebTools → browser-use → Web Browser
+User Input → main.py → WebAgent → OpenAI API → analyze_task_requirements → collect_info → execute_web_task → browser-use → Web Browser
 ```
 
 1. **User Input**: User types command in terminal
 2. **main.py**: Captures input and passes to WebAgent
 3. **WebAgent**: Processes input using OpenAI function calling
 4. **OpenAI API**: Determines which tool to use and with what parameters
-5. **Tool Selection**: WebAgent routes to appropriate tool
-6. **WebTools**: Executes the selected tool (e.g., web automation)
-7. **browser-use**: Performs actual browser automation
-8. **Web Browser**: Executes the web task
+5. **analyze_task_requirements**: Analyzes task and identifies required information
+6. **Information Collection**: Agent requests missing information from user
+7. **execute_web_task**: Executes web task with complete information
+8. **browser-use**: Performs actual browser automation
+9. **Web Browser**: Executes the web task
+
+### Enhanced Workflow
+
+The agent now follows a two-phase approach:
+
+**Phase 1: Task Analysis**
+- Analyzes user request to identify task type
+- Lists required steps for completion
+- Identifies information needed from user
+- Asks user for missing information
+
+**Phase 2: Task Execution**
+- Executes web task with complete information
+- Follows predefined steps for task completion
+- Provides feedback on progress and results
 
 ## Key Design Principles
 
@@ -143,7 +160,23 @@ python main.py
 ```
 
 Example interactions:
-- "Search Google for Python tutorials"
-- "Buy a basketball on Amazon"
-- "Book a flight from NYC to LA"
-- "What's your status?" 
+
+**Simple Search (Direct execution):**
+- User: "Search Google for Python tutorials"
+- Agent: [Executes search directly]
+
+**Complex Task (Analysis → Information gathering → Execution):**
+- User: "Buy a basketball on Amazon"
+- Agent: [Analyzes requirements] → "I need to know: budget, preferred brand, size, shipping address, payment method..."
+- User: [Provides details]
+- Agent: [Executes purchase with complete information]
+
+**Booking Task:**
+- User: "Book a flight from NYC to LA"
+- Agent: [Analyzes requirements] → "I need: departure date, return date, departure time preference, number of passengers, budget, airline preference..."
+- User: [Provides travel details]
+- Agent: [Executes booking with complete information]
+
+**Status Check:**
+- User: "What's your status?"
+- Agent: [Returns current status] 
