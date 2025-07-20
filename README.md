@@ -19,8 +19,6 @@ Login:
 - Google
 - Amazon
 
-email: `aryaman.agrawal28@gmail.com` pass: @ryamanagrawal28
-
 Tested Commands:
 
 - Go to Google Flights and Book me a flight to Amsterdam
@@ -34,6 +32,22 @@ Tested Commands:
     - Currently the application is architechted as a human-in-the-loop this human input can be replaced by interactions with another agent that is checking this agent's work
     - The human in the loop element can be architected using API endpoints supplied in functions that can prompt the user to enter further details if needed
 - Add Structured Output to the browser-use output so that the next agent call can study it and verify the outcome of the call
+- Memory caching to learn from previous mistakes or address edge cases
+- Connections with other agents that help improvise over time
+- Failure mode detection
+- Structured schema for outputs with browser-use
+- Custom functions with browser-use for in-depth steering
+- System prompt injection browser-use
+
+
+- No more human in the loop
+    - Add Agents with the right context (metadata access, or user info access)
+    - Guidance Agent 
+        - Come up with next steps if something goes wrong
+        - Validation
+    - Over time data monitoring and learning from mistakes
+        - Memory caching to learn from previous mistakes or address edge cases
+    - Checks and Balances Agent
 
 # Goal
 - Build a general-purpose browsing agent that can navigate websites and perform user requested tasks autonomously. 
